@@ -1,5 +1,7 @@
 import random
 import time
+from pathlib import Path
+import argparse
 
 
 def dead_state(width, height):
@@ -20,6 +22,17 @@ def random_state(width, height):
         for x in range(width):
             state[y][x] = 1 if random.random() >= 0.5 else 0
     return state
+
+
+def load_board_state(file_path):
+    """
+    Load a board state from a file.
+    Each line in the file represents a row,
+    with '0' for DEAD and '1' for ALIVE cells.
+    """
+    with open(file_path, 'r') as file:
+        return [[int(char) for char in line.strip()] for line in file if
+                line.strip()]
 
 
 def render(board):
@@ -66,8 +79,22 @@ def next_board_state(initial_state):
 
 # Run Life forever
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run Conway's Game of Life.")
+    parser.add_argument("-i", "--input", type=str, default=None,
+                        help="Name of the initial pattern file (without "
+                             "extension) in the templates folder.")
+    args = parser.parse_args()
+
     width, height = 20, 10
-    current_state = random_state(width, height)
+
+    if args.input:
+        template_path = Path.cwd() / "templates" / f"{args.input}.txt"
+        if not template_path.exists():
+            print(f"Error: File '{template_path}' not found.")
+            exit(1)
+        current_state = load_board_state(template_path)
+    else:
+        current_state = random_state(width, height)
 
     try:
         while True:
