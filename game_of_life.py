@@ -1,7 +1,7 @@
+import argparse
 import random
 import time
 from pathlib import Path
-import argparse
 
 
 def dead_state(width, height):
@@ -46,9 +46,10 @@ def render(board):
     print("-" * (len(board[0]) + 2))
 
 
-def next_board_state(initial_state):
+def next_board_state(initial_state, neighborhood):
     """
-    Calculate the next state of the board based on the Game of Life rules.
+    Calculate the next state of the board based on the Game of Life rules and a
+    given neighborhood.
     """
     height = len(initial_state)
     width = len(initial_state[0])
@@ -57,13 +58,10 @@ def next_board_state(initial_state):
     for y in range(height):
         for x in range(width):
             live_neighbors = 0
-            for dy in [-1, 0, 1]:
-                for dx in [-1, 0, 1]:
-                    if dy == 0 and dx == 0:
-                        continue
-                    ny, nx = y + dy, x + dx
-                    if 0 <= ny < height and 0 <= nx < width:
-                        live_neighbors += initial_state[ny][nx]
+            for dy, dx in neighborhood:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < height and 0 <= nx < width:
+                    live_neighbors += initial_state[ny][nx]
 
             if initial_state[y][x] == 1:  # ALIVE cell
                 if live_neighbors < 2 or live_neighbors > 3:
@@ -77,12 +75,22 @@ def next_board_state(initial_state):
     return new_state
 
 
+MOORE_NEIGHBORHOOD = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1),
+                      (1, 0), (1, 1)]
+
+VON_NEUMANN_NEIGHBORHOOD = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
 # Run Life forever
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Conway's Game of Life.")
     parser.add_argument("-i", "--input", type=str, default=None,
                         help="Name of the initial pattern file (without "
                              "extension) in the templates folder.")
+    parser.add_argument("-r", "--rules", type=str, default="moore",
+                        choices=["moore", "von_neumann"],
+                        help="Choose the ruleset: 'moore' for Moore "
+                             "Neighborhood, 'von_neumann' for Von Neumann "
+                             "Neighborhood.")
     args = parser.parse_args()
 
     width, height = 20, 10
@@ -96,10 +104,15 @@ if __name__ == "__main__":
     else:
         current_state = random_state(width, height)
 
+    neighbourhood_dict = {"moore": MOORE_NEIGHBORHOOD,
+                          "von_neumann": VON_NEUMANN_NEIGHBORHOOD}
+
+    neighborhood = neighbourhood_dict.get(args.rules)
+
     try:
         while True:
             render(current_state)
-            current_state = next_board_state(current_state)
+            current_state = next_board_state(current_state, neighborhood)
             time.sleep(0.5)  # Add a short delay for better visualization
     except KeyboardInterrupt:
         print("\nGame of Life terminated.")
