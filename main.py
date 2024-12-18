@@ -21,14 +21,25 @@ def random_state(width, height):
     return state
 
 
+def render(board):
+    """
+    Pretty-print the board state to the terminal.
+    Use '#' to represent ALIVE cells and ' ' for DEAD cells.
+    """
+    print("-" * (len(board[0]) + 2))
+    for row in board:
+        print("|" + "".join('#' if cell == 1 else ' ' for cell in row) + "|")
+    print("-" * (len(board[0]) + 2))
+
+
 # Testing the functions
 if __name__ == "__main__":
     width, height = 5, 5
 
     print("Dead State:")
-    for row in dead_state(width, height):
-        print(row)
+    a_dead_state = dead_state(width, height)
+    render(a_dead_state)
 
     print("\nRandom State:")
-    for row in random_state(width, height):
-        print(row)
+    a_random_state = random_state(width, height)
+    render(a_random_state)
