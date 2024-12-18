@@ -3,6 +3,11 @@ import random
 import time
 from pathlib import Path
 
+from colorama import Fore, init
+
+# Initialize colorama
+init(autoreset=True)
+
 
 def dead_state(width, height):
     """
@@ -37,12 +42,23 @@ def load_board_state(file_path):
 
 def render(board):
     """
-    Pretty-print the board state to the terminal.
-    Use '#' to represent ALIVE cells and ' ' for DEAD cells.
+    Pretty-print the board state to the terminal with rainbow colors for
+    ALIVE cells.
     """
+    colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE,
+              Fore.MAGENTA]
+    color_index = 0
+
     print("-" * (len(board[0]) + 2))
     for row in board:
-        print("|" + "".join('#' if cell == 1 else ' ' for cell in row) + "|")
+        print("|", end="")
+        for cell in row:
+            if cell == 1:
+                print(colors[color_index % len(colors)] + "█", end="")
+                color_index += 1
+            else:
+                print(" ", end="")
+        print("|")
     print("-" * (len(board[0]) + 2))
 
 
