@@ -1,4 +1,5 @@
 import random
+import time
 
 
 def dead_state(width, height):
@@ -63,18 +64,15 @@ def next_board_state(initial_state):
     return new_state
 
 
-# Testing the functions
+# Run Life forever
 if __name__ == "__main__":
-    width, height = 5, 5
+    width, height = 20, 10
+    current_state = random_state(width, height)
 
-    print("Dead State:")
-    a_dead_state = dead_state(width, height)
-    render(a_dead_state)
-
-    print("\nRandom State:")
-    a_random_state = random_state(width, height)
-    render(a_random_state)
-
-    print("\nNext State:")
-    next_state = next_board_state(a_random_state)
-    render(next_state)
+    try:
+        while True:
+            render(current_state)
+            current_state = next_board_state(current_state)
+            time.sleep(0.5)  # Add a short delay for better visualization
+    except KeyboardInterrupt:
+        print("\nGame of Life terminated.")
