@@ -42,24 +42,25 @@ def load_board_state(file_path):
 
 def render(board):
     """
-    Pretty-print the board state to the terminal with rainbow colors for
-    ALIVE cells.
+    Pretty-print the board state to the terminal with green for ALIVE cells
+    and spaces for DEAD cells. Uses cursor reset instead of full screen clear.
     """
-    colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE,
-              Fore.MAGENTA]
-    color_index = 0
+    # Buffer to store the entire screen content
+    buffer = []
 
-    print("-" * (len(board[0]) + 2))
+    # Build the content row by row
     for row in board:
-        print("|", end="")
+        line = ""
         for cell in row:
-            if cell == 1:
-                print(colors[color_index % len(colors)] + "█", end="")
-                color_index += 1
-            else:
-                print(" ", end="")
-        print("|")
-    print("-" * (len(board[0]) + 2))
+            if cell == 1:  # ALIVE cell
+                line += Fore.GREEN + "██"
+            else:  # DEAD cell
+                line += "  "
+        buffer.append(line)  # Add the constructed line to the buffer
+
+    # Reset cursor to top-left without clearing the entire screen
+    print("\033[H", end="")  # Reset cursor position to top-left
+    print("\n".join(buffer))  # Print all buffered content at once
 
 
 def next_board_state(initial_state, neighborhood):
@@ -126,6 +127,7 @@ if __name__ == "__main__":
     neighborhood = neighbourhood_dict.get(args.rules)
 
     try:
+        print("\033[H\033[J", end="")  # Clear screen and reset cursor
         while True:
             render(current_state)
             current_state = next_board_state(current_state, neighborhood)
